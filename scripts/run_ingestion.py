@@ -34,7 +34,7 @@ def ingest(file_path: str, domain_tags: list[str], authors: str = None, force: b
     from app.services.uploader import upload_paper, paper_exists, get_supabase_client
 
     path = Path(file_path)
-    client = get_supabase_client()
+    client = get_supabase_client()  
 
     # ── Guard: already ingested? ──────────────────────────────────────────
     if not force and paper_exists(path.name, client):
@@ -120,7 +120,7 @@ def delete_paper(paper_id: str):
 
 def test_retrieval(query: str):
     """Quick test of the retrieval system after ingestion."""
-    from retrieval.retriever import retrieve, format_chunks_for_prompt
+    from app.services.retriever import retrieve, format_chunks_for_prompt
     print(f"\nTesting retrieval for: '{query}'")
     chunks = retrieve(query, top_k=3)
     print(format_chunks_for_prompt(chunks))

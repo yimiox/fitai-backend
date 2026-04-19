@@ -22,8 +22,8 @@ from typing import Optional
 from dotenv import load_dotenv
 from supabase import Client
 
-from ingest.embedder import embed_chunks
-from ingest.uploader import get_supabase_client
+from app.services.embedder import embed_chunks
+from app.services.uploader import get_supabase_client
 
 load_dotenv()
 
