@@ -28,10 +28,10 @@ logger = logging.getLogger("ingestion")
 def ingest(file_path: str, domain_tags: list[str], authors: str = None, force: bool = False):
     """Full ingestion pipeline: parse → chunk → embed → upload."""
     from pathlib import Path
-    from ingest.pdf_parser import parse_pdf
-    from ingest.chunker import chunk_paper, chunk_preview
-    from ingest.embedder import embed_chunks
-    from ingest.uploader import upload_paper, paper_exists, get_supabase_client
+    from scripts.pdf_parser import parse_pdf
+    from app.services.chunker import chunk_paper, chunk_preview
+    from app.services.embedder import embed_chunks
+    from app.services.uploader import upload_paper, paper_exists, get_supabase_client
 
     path = Path(file_path)
     client = get_supabase_client()
