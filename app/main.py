@@ -22,11 +22,12 @@ from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
 
-from scripts.pdf_parser import parse_pdf
+from data.scripts.pdf_parser import parse_pdf
 from app.services.chunker import chunk_paper
 from app.services.embedder import embed_chunks
 from app.services.uploader import upload_paper, paper_exists, list_papers, delete_paper, get_supabase_client
 from app.services.retriever import retrieve, retrieve_for_profile, format_chunks_for_prompt
+
 
 load_dotenv()
 
@@ -38,6 +39,9 @@ app = FastAPI(
     description="Research paper ingestion and retrieval for FitAI",
     version="1.0.0",
 )
+
+from profile.routes import router as profile_router
+app.include_router(profile_router)
 
 # Allow requests from your React frontend
 app.add_middleware(

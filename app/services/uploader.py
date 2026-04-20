@@ -17,7 +17,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-from scripts.pdf_parser import ParsedPaper
+from data.scripts.pdf_parser import ParsedPaper
 from app.services.chunker import Chunk
 
 load_dotenv()
