@@ -27,7 +27,7 @@ from app.services.chunker import chunk_paper
 from app.services.embedder import embed_chunks
 from app.services.uploader import upload_paper, paper_exists, list_papers, delete_paper, get_supabase_client
 from app.services.retriever import retrieve, retrieve_for_profile, format_chunks_for_prompt
-
+from app.routes.routes_plans import router as plans_router
 
 load_dotenv()
 
@@ -42,6 +42,7 @@ app = FastAPI(
 
 from profile.routes import router as profile_router
 app.include_router(profile_router)
+app.include_router(plans_router, prefix="/api")
 
 # Allow requests from your React frontend
 app.add_middleware(

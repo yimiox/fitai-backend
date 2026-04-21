@@ -1,4 +1,4 @@
-def assemble_user_message(profile: dict, chunks: list[dict]) -> str:
+def assemble_user_message(profile: dict, chunks: list[dict], error_hint: str = None) -> str:
     """
     Build the full user message sent to the LLM.
     chunks: list of {id, paper_title, domain, text}
@@ -95,5 +95,15 @@ Cooking time available: {profile['cooking_time_mins']} mins/meal
   "personalization_notes": "Plan adjusted for low budget using eggs and lentils as primary protein sources."
 }
 """
+# # If this is a retry, tell Claude what went wrong last time
+#     if error_hint:
+#         user_message += f"""
+
+# === CORRECTION REQUIRED ===
+# Your previous response had this problem: {error_hint}
+# Fix it and respond with ONLY valid JSON matching the schema above.
+# """
+
+#     return user_message
 
     return profile_section + chunks_section + schema_section
