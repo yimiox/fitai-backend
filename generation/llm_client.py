@@ -26,7 +26,7 @@ def generate_plan(profile: dict, chunks: list[dict], error_hint: str = None) -> 
  
     response = client.messages.create(
         model="claude-sonnet-4-5",
-        max_tokens=4096,
+        max_tokens=8096,
         system=SYSTEM_PROMPT,
         messages=[
             {"role": "user", "content": user_message}
