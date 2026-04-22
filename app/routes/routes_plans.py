@@ -1,8 +1,6 @@
 """
 app/routes/routes_plans.py
-
-Updated to use the agentic pipeline (agent_pipeline.py)
-instead of the linear pipeline (pipeline.py).
+Updated for Upgrade 3 — adds GET /api/conversation/{user_id}/{plan_id}
 """
 
 from fastapi import APIRouter, HTTPException
@@ -17,7 +15,7 @@ router = APIRouter()
 
 
 # ─────────────────────────────────────────────
-# INJECTION DEFENCE (from Upgrade 1)
+# INJECTION DEFENCE
 # ─────────────────────────────────────────────
 
 def injection_check(text: str) -> bool:
@@ -54,11 +52,9 @@ class AdjustPlanRequest(BaseModel):
 
 @router.post("/generate-plan")
 async def generate_plan(request: GeneratePlanRequest):
-
     required_fields = [
-        "goal", "experience", "budget_tier",
-        "bmi", "tdee", "equipment",
-        "health_conditions", "dietary_restrictions",
+        "goal", "experience", "budget_tier", "bmi", "tdee",
+        "equipment", "health_conditions", "dietary_restrictions",
         "age", "sex", "height_cm", "weight_kg"
     ]
     missing = [f for f in required_fields if f not in request.profile]
@@ -70,13 +66,11 @@ async def generate_plan(request: GeneratePlanRequest):
         raise HTTPException(status_code=422, detail=f"Invalid goal. Must be one of: {valid_goals}")
 
     try:
-        # ── Use agentic pipeline ──────────────────────────────────
         plan = run_agentic_generation_pipeline(
             user_id=request.user_id,
             profile=request.profile
         )
         return plan
-
     except Exception as e:
         print(f"[routes_plans] Generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Plan generation failed: {str(e)}")
@@ -88,7 +82,6 @@ async def generate_plan(request: GeneratePlanRequest):
 
 @router.post("/adjust-plan")
 async def adjust_plan(request: AdjustPlanRequest):
-
     if not request.adjustment.strip():
         raise HTTPException(status_code=422, detail="Adjustment text cannot be empty")
     if len(request.adjustment) > 500:
@@ -97,14 +90,12 @@ async def adjust_plan(request: AdjustPlanRequest):
     safe_text(request.adjustment, "adjustment")
 
     try:
-        # ── Use agentic pipeline ──────────────────────────────────
         updated_plan = run_agentic_adjustment_pipeline(
             user_id=request.user_id,
             plan_id=request.plan_id,
             adjustment=request.adjustment
         )
         return updated_plan
-
     except Exception as e:
         print(f"[routes_plans] Adjustment failed: {e}")
         raise HTTPException(status_code=500, detail=f"Plan adjustment failed: {str(e)}")
@@ -121,3 +112,18 @@ async def get_plan(user_id: str):
     if not plan:
         raise HTTPException(status_code=404, detail=f"No plan found for user {user_id}")
     return plan
+
+
+# ─────────────────────────────────────────────
+# GET /api/conversation/{user_id}/{plan_id}  ← NEW
+# ─────────────────────────────────────────────
+
+@router.get("/conversation/{user_id}/{plan_id}")
+async def get_conversation(user_id: str, plan_id: str):
+    """
+    Retrieve the full conversation history for a user+plan.
+    Used by the frontend chat UI to load previous messages on return visits.
+    """
+    from generation.storage import get_all_conversations
+    messages = get_all_conversations(user_id, plan_id)
+    return {"messages": messages}
