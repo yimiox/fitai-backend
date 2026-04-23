@@ -5,8 +5,13 @@ EvidenceFit is an evidence-based, AI-powered health and fitness application. It 
 ## Features
 - **Personalized Planning:** Creates tailored workout routines and meal plans based on your profile (age, weight, goal, diet preference, training hours).
 - **Vision AI Equipment Inventory:** Upload a photo of your gym setup or home equipment. The AI identifies your equipment and builds a routine exclusively using what you have.
-- **Evidence-Based Rationale:** Provides citations and research sources justifying the structure of your plan.
+- **Evidence-Based Rationale:** Utilizes **Retrieval-Augmented Generation (RAG)** to provide citations and research sources justifying the structure of your plan. Every meaningful claim is cited from the indexed corpus or marked as general guidance.
 - **AI Coach Chat:** A chat interface where you can ask fitness and nutrition questions. It responds using scientific literature and provides direct citations.
+
+## Safety and Security 
+- **Input Sanitization:** All user input is rigorously sanitized and screened for jailbreak patterns to prevent malicious exploits.
+- **Guardrails:** Robust system-level constraints prevent prompt injection and ensure advice remains strictly within the realm of fitness and nutrition.
+- **Privacy:** All conversation memory is private and scoped to the users only, ensuring that personal health journeys remain confidential and accessible only to the account owner.
 
 ## How It Works
 
@@ -40,20 +45,20 @@ graph TD
 ```
 
 ### 1. Onboarding & Profiling
-New users start at the onboarding screen to fill out basic stats (gender, age, height, weight, activity level) and their goal (e.g., build muscle, lose fat). This data is stored in the Supabase PostgreSQL `profiles` table.
+New users start at the onboarding screen to fill out basic stats (gender, age, height, weight, activity level) and their goal (e.g., build muscle, lose fat). This data is stored securely in the Supabase PostgreSQL `profiles` table.
 
 ### 2. Plan Generation
-Once onboarded, a request is made to the `generate-plan` Supabase Edge Function. It calls an LLM to generate a customized JSON structure representing the user's workout split, exercises (with sets, reps, and RIR), and a daily meal plan with macro breakdowns.
+Once onboarded, a request is made to the `generate-plan` Supabase Edge Function. It calls the **llama-3.3-70b-versatile** model to generate a customized JSON structure representing the user's workout split, exercises (with sets, reps, and RIR), and a daily meal plan with macro breakdowns.
 
 ### 3. Equipment Vision Tailoring (Optional)
-On the Dashboard, users can upload an image of their gym or available equipment. The frontend sends this base64 image to the `generate-plan` function, which uses a Vision Model to identify the available equipment and constraints the workout plan accordingly.
+On the Dashboard, users can upload an image of their gym or available equipment. The frontend sends this base64 image to the `generate-plan` function, which uses the **meta-llama/llama-4-scout-17b-16e-instruct** to identify the available equipment and constraints the workout plan accordingly.
 
 ### 4. AI Coach Chat
-Users can interact with an AI coach via the `/chat` route. Messages are sent to the `chat` Edge Function, which streams back responses using Server-Sent Events (SSE). The AI focuses on providing scientific rationale and specific peer-reviewed citations to answer the user's fitness questions.
+Users can interact with an AI coach via the `/chat` route. Messages are sent to the chat Edge Function, which streams back responses using Server-Sent Events (SSE). The AI leverages RAG to focus on providing scientific rationale and specific peer-reviewed citations.
 
 ## Tech Stack
 - **Frontend:** React, Vite, Tailwind CSS, Radix UI components (shadcn/ui), Framer Motion.
 - **Backend & Auth:** Supabase (PostgreSQL, Authentication).
-- **Serverless / AI:** Supabase Edge Functions.
+- **Serverless / AI:** Supabase Edge Functions, Groq API (llama models).
 - **Routing:** React Router DOM.
 - **Icons & Markdown:** Lucide React, React Markdown (with remark-gfm).
